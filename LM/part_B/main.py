@@ -17,11 +17,11 @@ def main():
     DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
     TBS = 32
     LR = 3.0
-    HID_DIM = 700
-    EMB_SIZE = 700
+    HID_DIM = 900
+    EMB_SIZE = 900
     N_EPOCHS = 100
-    EMB_DO = 0.4
-    OUT_DO = 0.65
+    EMB_DO = 0.7
+    OUT_DO = 0.7
     CLIP = 5
     
     print(f"Running Part B on: {DEVICE}")
