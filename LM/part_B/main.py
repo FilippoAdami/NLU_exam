@@ -20,8 +20,8 @@ def main():
     HID_DIM = 700
     EMB_SIZE = 700
     N_EPOCHS = 100
-    EMB_DO = 0.7
-    OUT_DO = 0.7
+    EMB_DO = 0.4
+    OUT_DO = 0.65
     CLIP = 5
     
     print(f"Running Part B on: {DEVICE}")
