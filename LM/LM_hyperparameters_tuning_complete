@@ -1,0 +1,113 @@
+Baseline Params
+hid_size = 200, emb_size = 300, lr= 0.0001, clip=5, model = RNN, optimizer = SDG => PPL= 5768.688327 (100 epochs)
+
+Phase0.0.1 (parameters tuning - lr)
+hid_size = 200, emb_size = 300, batch_size=64, lr= 0.001, 0.01, 0.1, 0.5, 1, 5, 10, 20, clip=5, model = RNN, optimizer = SDG => 
+	20  => PPL= 143123005 (11/14 epochs)
+	10  => PPL= 5737      (10/14 epochs) 
+	5   => PPL= 628       (9/14  epochs)
+	1   => PPL= 158       (20/49 epochs)
+	0.5 => PPL= 155       (27/49 epochs)
+	0.1 => PPL= 180       (49/49 epochs)
+	
+Phase0.0.2 (parameters tuning - lr, batch-size)
+hid_size = 200, emb_size = 400, batch_size=16, 32, lr= 0.5, 1, 2, clip=5, model = RNN, optimizer = SDG => 
+	lr= 2,  bs=16 => PPL=242 (5/49  epochs)
+	lr= 1,  bs=16 => PPL=156 (12/49 epochs)
+	lr=0.5, bs=16 => PPL=167 (20/49  epochs)
+	
+	lr= 2,  bs=32 => PPL=175 (6/49  epochs)
+	lr= 1,  bs=32 => PPL=156 (12/49 epochs)
+	lr=0.5, bs=32 => PPL=154 (22/49  epochs)
+
+Phase0.1 (parameters tuning - emb_size, hid_size)
+hid_size = 200,300,400 emb_size = 200,300,400 , batch_size=32, lr= 0.5, clip=5, model = RNN, optimizer = SDG => 
+	H200, E200 PPL= 163   (24/49 epochs)
+	H200, E300 PPL= 156   (27/49 epochs)
+	H200, E400 PPL= 154   (22/49 epochs)
+	
+	H400, E200 PPL= 160   (16/49 epochs)
+	H400, E300 PPL= 155   (17/49 epochs)
+	H400, E400 PPL= 151.53   (11/49 epochs) [avg]
+	
+	
+Why these values?
+batch size (32): gives moderate gradient noise (good generalization) while still stable updates.
+learning rate (0.5): tyied with batch size, high but not too much to avoid problems with exploding gradients
+hid size (400): this scales model memory/temporal capacity; 400 often unlocks big gains over 200 for RNN/LSTM LMs without exploding runtime. 
+emb size (400): Larger E gives richer token vectors so the model sees better input features. On PTB this helps, but with diminishing returns once embeddings already capture word distinctions. Also, bigger E helps more if H (and the output) can use it. If you inflate embeddings but keep H small, the network may not be able to fully exploit that extra lexical information for sequence modeling. Your best result uses both larger H and larger E, so input richness and temporal/extraction capacity scale together.
+
+
+Phase1.1 (RNN->LSTM)
+	bs=64  lr=2 -> (PPL:141.26, 6min/10ep)
+	bs=32  lr=2 -> (PPL:133.62, 6min/9ep) [avg3]
+	bs=16  lr=2 -> (PPL:134.52, 4min/6ep)
+
+	bs=64  lr=1 -> (PPL:143.93, 9min/17ep)
+	bs=32  lr=1 -> (PPL:136.18, 6min/ep11)
+	bs=16  lr=1 -> (PPL:135.49, 4min/7ep)
+
+	bs=64  lr=0.5 -> (PPL:148.87, 15min/29ep)
+	bs=32  lr=0.5 -> (PPL:140.38, 8min/16ep)
+	bs=16  lr=0.5 -> (PPL:138.88, 7min/13ep)
+	
+	bs=64  lr=0.1 -> (PPL:160.69, 39min/75ep)
+	bs=32  lr=0.1 -> (PPL:152.90, 21min/36ep)
+	
+Why these values?
+batch size (32): same as RNN, good balance between noise and generalization
+learning rate (2): higher than RNN since gating mechanisms mitigate gradients problems. With lower learning rates it may get stuck in local minima
+hid size(400): LSTM could handle a larger number but the daset is small enough so it's not worth to make the model more complex
+emb size(400): 400 tyied to hid_dim
+
+
+Phase1.2 (LSTM + DropOut)	
+	EMB=0.1 OUT=0.1 -> (PPL:121.87, 7min/13ep)
+	EMB=0.1 OUT=0.3 -> (PPL:115.07, 8min/16ep)
+	EMB=0.1 OUT=0.5 -> (PPL:109.99, 14min/26ep)
+	EMB=0.1 OUT=0.7 -> (PPL:107.02 , 33min/49ep) [avg3]
+	
+	EMB=0.2 OUT=0.3 -> (PPL:115.44, 13min/24ep)
+	EMB=0.2 OUT=0.5 -> (PPL:109.97, 20min/39ep)
+
+
+Phase1.3 (LSTM + DropOut + AdamW)
+	lr=2e-2 -> (PPL:348.88, 2min/4ep)
+	lr=2e-3 -> (PPL:113.04, 13min/22ep)
+	lr=2e−4 -> (PPL:112.53, 27min/48ep)
+	lr=5e−4 -> (PPL:109.64, 11min/19ep) (Out_DO:0.5)
+	lr=4e−4 -> (PPL:113.41, 17min/30ep) (Out_DO:0.5, BS:64)
+	lr=4e−4 -> (PPL:107.50, 11min/13ep) (Out_DO:0.5, HID_DIM:600, EMB_SIZE:600)
+	lr=4e−4 -> (PPL:106.37, 9min/10ep) (Out_DO:0.5, HID_DIM:900, EMB_SIZE:600)
+	lr=5e−4 -> (PPL:108.24, 10min/7ep) (Out_DO:0.5, HID_DIM:900, EMB_SIZE:900)
+	lr=5e−4 -> (PPL:107.09, 10min/11ep) (Out_DO:0.5, HID_DIM:700, EMB_SIZE:500)
+	lr=7e−4 -> (PPL:108.35, 9min/10ep) (Out_DO:0.5, HID_DIM:650, EMB_SIZE:400)
+	lr=4e−4 -> (PPL:101.98, 28min/27ep) (Emb_DO:0.3, Out_DO:0.65, HID_DIM:800, EMB_SIZE:600) 
+	lr=4e−4 -> (PPL:106.20, 16min/16ep) (Emb_DO:0.3, Out_DO:0.7, HID_DIM:900, EMB_SIZE:700)
+	
+Phase1.4 (LSTM + Weight Tying)
+	DIM=600 -> (PPL:118.29, 9min/13ep)
+	DIM=400 -> (PPL:116.62, 7min/14ep)
+	DIM=300 -> (PPL:115.43, 6min/16ep)
+	DIM=200 -> (PPL:118.59, 5min/18ep)
+	
+Phase1.5 (LSTM + Weight Tying + Var DropOut) (DIM:300 / 500 / 700)
+	EMB=0.1 OUT=0.7 -> (PPL:105.15 , 17min/44ep) (DIM:300)
+	EMB=0.3 OUT=0.65 -> (PPL:97.46 , 26min/70ep) (DIM:300)
+	EMB=0.1 OUT=0.3 -> (PPL:101.66 , 16min/26ep) (DIM:300)
+	EMB=0.2 OUT=0.5 -> (PPL:95.93 , 22min/33ep) (DIM:500)
+	EMB=0.3 OUT=0.7 -> (PPL:91.44 , 33min/40ep) (DIM:700)
+	EMB=0.3 OUT=0.7 -> (PPL:95.02 , 33min/40ep) (DIM:800)
+	
+Phase1.6 (LSTM + Weight Tying + Var Dropout + NT-AvSGD)
+	EMB=0.7 OUT=0.7 LR=3 -> (PPL:87.55, 45min/53ep) (DIM:700)
+	EMB=0.5 OUT=0.7 LR=3 -> (PPL:91.37, 45min/53ep) (DIM:700)
+	EMB=0.2 OUT=0.6 LR=3 -> (PPL:95.58, 30min/44ep) (DIM:700)
+	EMB=0.2 OUT=0.6 LR=1 -> (PPL:98.65, 36min/41ep) (DIM:700)
+	EMB=0.2 OUT=0.6 LR=2 -> (PPL:96.43, 26min/34ep) (DIM:500)
+	EMB=0.2 OUT=0.6 LR=3 -> (PPL:95.24, 19min/33ep) (DIM:500)
+	
+
+	
+	
+
