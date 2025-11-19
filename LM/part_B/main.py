@@ -16,11 +16,11 @@ def main():
     # --- Hyperparameters (Higher LR for ASGD) ---
     DEVICE = 'cuda:0' if torch.cuda.is_available() else 'cpu'
     TBS = 32
-    LR = 3.0            # High LR for ASGD
+    LR = 3.0
     HID_DIM = 700
     EMB_SIZE = 700
     N_EPOCHS = 100
-    EMB_DO = 0.4
+    EMB_DO = 0.7
     OUT_DO = 0.7
     CLIP = 5
     
@@ -106,7 +106,7 @@ def main():
     best_model.to(DEVICE)
     final_ppl, _ = eval_loop(test_loader, criterion_eval, best_model, DEVICE)
     print('\nPart B Test PPL: ', final_ppl)
-    torch.save(best_model.state_dict(), 'bin/best_model_partB.pt')
+    #torch.save(best_model.state_dict(), 'bin/best_model_partB.pt') # Save the best model
 
 if __name__ == "__main__":
     main()

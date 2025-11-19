@@ -78,13 +78,13 @@ def main():
             patience -= 1
             
         if patience <= 0:
-            print("Early stopping")
+            print("f\nEpoch {epoch}: Early stopping")
             break
 
     best_model.to(DEVICE)
     final_ppl, _ = eval_loop(test_loader, criterion_eval, best_model, DEVICE)
     print('\nPart A Test PPL: ', final_ppl)
-    torch.save(best_model.state_dict(), 'bin/best_model_partA.pt')
+    #torch.save(best_model.state_dict(), 'bin/best_model_partA.pt') # Save the best model
 
 if __name__ == "__main__":
     main()
