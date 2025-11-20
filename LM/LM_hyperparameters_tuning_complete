@@ -71,7 +71,7 @@ Phase1.2 (LSTM + DropOut)
 	EMB=0.2 OUT=0.5 -> (PPL:109.97, 20min/39ep)
 
 
-Phase1.3 (LSTM + DropOut + AdamW)
+Phase1.3 (LSTM + DropOut + AdamW)  (weight decay not tuned for simplicity)
 	lr=2e-2 -> (PPL:348.88, 2min/4ep)
 	lr=2e-3 -> (PPL:113.04, 13min/22ep)
 	lr=2e−4 -> (PPL:112.53, 27min/48ep)
