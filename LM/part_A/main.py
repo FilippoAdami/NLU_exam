@@ -137,3 +137,6 @@ def main():
     print('\nPart A Test PPL: ', final_ppl)
     
     # torch.save(best_model.state_dict(), 'bin/best_model_partA.pt') # Saving is commented out
+
+if __name__ == "__main__":
+    main()

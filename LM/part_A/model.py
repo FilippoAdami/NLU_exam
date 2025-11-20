@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-## --- 1. LANGUAGE MODEL (LM) with Vanilla RNN ---
+## --- 1. Vanilla RNN ---
 
 class RNN(nn.Module):
     """
